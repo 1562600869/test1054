@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏸 业余羽毛球俱乐部</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f1923;--card:#1a2736;--card2:#213045;--accent:#4fc3f7;--accent2:#29b6f6;--green:#66bb6a;--red:#ef5350;--gold:#ffd54f;--text:#e0e0e0;--text2:#90a4ae;--border:#2c3e50}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.header{background:linear-gradient(135deg,#1a2736 0%,#0d2137 100%);padding:20px 30px;border-bottom:2px solid var(--accent);display:flex;align-items:center;gap:16px}
+.header h1{font-size:24px;font-weight:700;color:var(--accent)}
+.header .emoji{font-size:32px}
+.tabs{display:flex;gap:0;background:var(--card);border-bottom:1px solid var(--border)}
+.tab{padding:14px 28px;cursor:pointer;color:var(--text2);font-size:14px;font-weight:500;border-bottom:3px solid transparent;transition:all .2s;user-select:none}
+.tab:hover{color:var(--text);background:var(--card2)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--card2)}
+.content{max-width:1100px;margin:0 auto;padding:24px}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--card);border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid var(--border)}
+.card h2{font-size:18px;margin-bottom:16px;color:var(--accent);display:flex;align-items:center;gap:8px}
+.form-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:12px;color:var(--text2);font-weight:500}
+.form-group input,.form-group select{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;outline:none;min-width:140px}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent)}
+.btn{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-sm{padding:6px 14px;font-size:13px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:12px 14px;font-size:12px;text-transform:uppercase;color:var(--text2);border-bottom:1px solid var(--border);font-weight:600}
+td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:14px}
+tr:hover td{background:var(--card2)}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700}
+.badge-C{background:#2e7d32;color:#a5d6a7}
+.badge-B{background:#1565c0;color:#90caf9}
+.badge-A{background:#6a1b9a;color:#ce93d8}
+.badge-S{background:#b71c1c;color:#ef9a9a}
+.win{color:var(--green);font-weight:600}
+.lose{color:var(--red)}
+.score-display{font-family:'Courier New',monospace;color:var(--gold);font-weight:600;letter-spacing:1px}
+.highlight{background:linear-gradient(135deg,var(--card) 0%,var(--card2) 100%);border-left:4px solid var(--accent)}
+.highlight h2{color:var(--gold)}
+.empty{text-align:center;padding:40px;color:var(--text2);font-size:14px}
+.member-link{color:var(--accent);cursor:pointer;text-decoration:underline}
+.member-link:hover{color:var(--accent2)}
+.history-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100}
+.history-modal .modal-content{background:var(--card);border-radius:16px;padding:30px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;border:1px solid var(--accent)}
+.history-modal .close-btn{float:right;cursor:pointer;font-size:20px;color:var(--text2);background:none;border:none}
+.history-modal .close-btn:hover{color:var(--text)}
+.stat-box{display:inline-flex;flex-direction:column;align-items:center;padding:12px 20px;background:var(--card2);border-radius:10px;margin:4px}
+.stat-box .num{font-size:28px;font-weight:700}
+.stat-box .lbl{font-size:11px;color:var(--text2);margin-top:2px}
+.rank-1 td{background:rgba(255,213,79,.08)!important}
+.rank-2 td{background:rgba(192,192,192,.06)!important}
+.rank-3 td{background:rgba(205,127,50,.06)!important}
+.vs{color:var(--red);font-weight:700;font-size:16px;margin:0 8px}
+.winner-tag{color:var(--green);font-size:12px;font-weight:600}
+@media(max-width:700px){.form-row{flex-direction:column}.form-group input,.form-group select{min-width:100%}.content{padding:12px}.card{padding:16px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="emoji">🏸</span>
+  <h1>业余羽毛球俱乐部</h1>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="members">成员管理</div>
+  <div class="tab" data-tab="matches">比赛记录</div>
+  <div class="tab" data-tab="leaderboard">积分排行</div>
+  <div class="tab" data-tab="active">本月活跃</div>
+</div>
+
+<div class="content">
+  <div id="panel-members" class="panel active">
+    <div class="card">
+      <h2>➕ 添加成员</h2>
+      <div class="form-row">
+        <div class="form-group"><label>昵称</label><input id="m-nickname" placeholder="输入昵称"></div>
+        <div class="form-group"><label>技术级别</label>
+          <select id="m-level"><option value="C">C - 初学</option><option value="B">B - 业余</option><option value="A">A - 进阶</option><option value="S">S - 精英</option></select>
+        </div>
+        <button class="btn btn-primary" onclick="addMember()">添加</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📋 成员列表</h2>
+      <table><thead><tr><th>ID</th><th>昵称</th><th>级别</th><th>加入日期</th><th>操作</th></tr></thead><tbody id="members-tbody"></tbody></table>
+      <div id="members-empty" class="empty" style="display:none">暂无成员，快添加第一位吧！</div>
+    </div>
+  </div>
+
+  <div id="panel-matches" class="panel">
+    <div class="card">
+      <h2>🏸 记录比赛</h2>
+      <div class="form-row">
+        <div class="form-group"><label>场地类型</label>
+          <select id="match-type" onchange="toggleDoubles()"><option value="singles">单打</option><option value="doubles">双打</option></select>
+        </div>
+        <div class="form-group"><label>日期</label><input id="match-date" type="date"></div>
+        <div class="form-group"><label>比分 (如 21:15 21:18)</label><input id="match-scores" placeholder="21:15 21:18"></div>
+      </div>
+      <div class="form-row" style="margin-top:12px">
+        <div class="form-group"><label>一方 选1人</label><select id="match-p1" class="player-select"></select></div>
+        <div class="form-group doubles-only" style="display:none"><label>一方 搭档</label><select id="match-p1b" class="player-select"></select></div>
+        <span class="vs">VS</span>
+        <div class="form-group"><label>另一方 选1人</label><select id="match-p2" class="player-select"></select></div>
+        <div class="form-group doubles-only" style="display:none"><label>另一方 搭档</label><select id="match-p2b" class="player-select"></select></div>
+      </div>
+      <div class="form-row" style="margin-top:12px">
+        <div class="form-group"><label>胜方</label>
+          <select id="match-winner"><option value="1">一方胜</option><option value="2">另一方胜</option></select>
+        </div>
+        <button class="btn btn-primary" onclick="addMatch()">记录比赛</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📊 比赛历史</h2>
+      <table><thead><tr><th>日期</th><th>类型</th><th>对阵</th><th>比分</th><th>胜者</th></tr></thead><tbody id="matches-tbody"></tbody></table>
+      <div id="matches-empty" class="empty" style="display:none">暂无比赛记录</div>
+    </div>
+  </div>
+
+  <div id="panel-leaderboard" class="panel">
+    <div class="card highlight">
+      <h2>🏆 积分排行榜</h2>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:16px">积分规则：胜者 +3 分，负者 +1 分（参与奖）</p>
+      <table><thead><tr><th>排名</th><th>昵称</th><th>级别</th><th>积分</th><th>胜场</th><th>负场</th><th>胜率</th></tr></thead><tbody id="lb-tbody"></tbody></table>
+      <div id="lb-empty" class="empty" style="display:none">暂无积分数据</div>
+    </div>
+  </div>
+
+  <div id="panel-active" class="panel">
+    <div class="card highlight" id="active-card">
+      <h2>🔥 本月最活跃成员</h2>
+      <div id="active-content"></div>
+    </div>
+  </div>
+</div>
+
+<div id="history-modal" class="history-modal" style="display:none" onclick="if(event.target===this)closeHistory()">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeHistory()">✕</button>
+    <div id="history-detail"></div>
+  </div>
+</div>
+
+<script>
+const API = '/api';
+let allMembers = [];
+
+function $(id) { return document.getElementById(id); }
+function opt(val, text) { const o = document.createElement('option'); o.value = val; o.textContent = text; return o; }
+
+function initDate() {
+  const d = new Date();
+  $('match-date').value = d.toISOString().slice(0, 10);
+}
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    $('panel-' + t.dataset.tab).classList.add('active');
+    if (t.dataset.tab === 'leaderboard') loadLeaderboard();
+    if (t.dataset.tab === 'active') loadActive();
+  });
+});
+
+function toggleDoubles() {
+  const isDoubles = $('match-type').value === 'doubles';
+  document.querySelectorAll('.doubles-only').forEach(el => el.style.display = isDoubles ? '' : 'none');
+  const lbl1 = $('match-p1').previousElementSibling;
+  const lbl2 = $('match-p2').previousElementSibling;
+  lbl1.textContent = isDoubles ? '一方 选1人' : '一方';
+  lbl2.textContent = isDoubles ? '另一方 选1人' : '另一方';
+}
+
+function updatePlayerSelects() {
+  ['match-p1','match-p1b','match-p2','match-p2b'].forEach(id => {
+    const sel = $(id);
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">-- 选择 --</option>';
+    allMembers.forEach(m => sel.appendChild(opt(m.id, m.nickname + ' (' + m.level + ')')));
+    if (cur) sel.value = cur;
+  });
+}
+
+async function loadMembers() {
+  const res = await fetch(API + '/members');
+  allMembers = await res.json();
+  const tbody = $('members-tbody');
+  const empty = $('members-empty');
+  if (!allMembers.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = allMembers.map(m => `<tr>
+    <td>${m.id}</td>
+    <td><span class="member-link" onclick="showHistory(${m.id})">${m.nickname}</span></td>
+    <td><span class="badge badge-${m.level}">${m.level}</span></td>
+    <td>${m.join_date}</td>
+    <td><button class="btn btn-primary btn-sm" onclick="showHistory(${m.id})">战绩</button></td>
+  </tr>`).join('');
+  updatePlayerSelects();
+}
+
+async function addMember() {
+  const nickname = $('m-nickname').value.trim();
+  const level = $('m-level').value;
+  if (!nickname) { alert('请输入昵称'); return; }
+  const res = await fetch(API + '/members', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({nickname, level})
+  });
+  if (!res.ok) { const e = await res.json(); alert(e.error); return; }
+  $('m-nickname').value = '';
+  loadMembers();
+}
+
+async function loadMatches() {
+  const res = await fetch(API + '/matches');
+  const matches = await res.json();
+  const tbody = $('matches-tbody');
+  const empty = $('matches-empty');
+  if (!matches.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = matches.map(m => {
+    const t1 = m.team1.map(p => p.nickname).join(' & ');
+    const t2 = m.team2.map(p => p.nickname).join(' & ');
+    const w = m.winner_team === 1 ? t1 : t2;
+    const typeLabel = m.court_type === 'singles' ? '单打' : '双打';
+    return `<tr>
+      <td>${m.match_date}</td>
+      <td>${typeLabel}</td>
+      <td>${t1} <span class="vs">VS</span> ${t2}</td>
+      <td class="score-display">${m.scores}</td>
+      <td><span class="winner-tag">🏆 ${w}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+async function addMatch() {
+  const courtType = $('match-type').value;
+  const matchDate = $('match-date').value;
+  const scores = $('match-scores').value.trim();
+  const winnerTeam = parseInt($('match-winner').value);
+
+  if (!matchDate) { alert('请选择日期'); return; }
+  if (!scores) { alert('请输入比分'); return; }
+
+  const p1 = parseInt($('match-p1').value);
+  const p2 = parseInt($('match-p2').value);
+  if (!p1 || !p2) { alert('请选择对阵双方'); return; }
+  if (p1 === p2) { alert('双方不能是同一人'); return; }
+
+  let team1IDs = [p1];
+  let team2IDs = [p2];
+
+  if (courtType === 'doubles') {
+    const p1b = parseInt($('match-p1b').value);
+    const p2b = parseInt($('match-p2b').value);
+    if (!p1b || !p2b) { alert('双打需要选择搭档'); return; }
+    const all = [p1, p1b, p2, p2b];
+    const unique = new Set(all);
+    if (unique.size !== all.length) { alert('每位选手只能出现一次'); return; }
+    team1IDs = [p1, p1b];
+    team2IDs = [p2, p2b];
+  }
+
+  const res = await fetch(API + '/matches', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({court_type: courtType, match_date: matchDate, scores, winner_team: winnerTeam, team1_ids: team1IDs, team2_ids: team2IDs})
+  });
+  if (!res.ok) { const e = await res.json(); alert(e.error); return; }
+  $('match-scores').value = '';
+  loadMatches();
+}
+
+async function loadLeaderboard() {
+  const res = await fetch(API + '/leaderboard');
+  const entries = await res.json();
+  const tbody = $('lb-tbody');
+  const empty = $('lb-empty');
+  if (!entries.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = entries.map((e, i) => {
+    const rank = i + 1;
+    const rankIcon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+    const total = e.wins + e.losses;
+    const rate = total > 0 ? (e.wins / total * 100).toFixed(1) + '%' : '-';
+    const cls = rank <= 3 ? ' class="rank-' + rank + '"' : '';
+    return `<tr${cls}>
+      <td>${rankIcon}</td>
+      <td><span class="member-link" onclick="showHistory(${e.id})">${e.nickname}</span></td>
+      <td><span class="badge badge-${e.level}">${e.level}</span></td>
+      <td style="font-weight:700;color:var(--gold)">${e.points}</td>
+      <td class="win">${e.wins}</td>
+      <td class="lose">${e.losses}</td>
+      <td>${rate}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadActive() {
+  const res = await fetch(API + '/active');
+  const data = await res.json();
+  const content = $('active-content');
+  if (!data) {
+    content.innerHTML = '<div class="empty">本月暂无比赛记录</div>';
+    return;
+  }
+  content.innerHTML = `
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div class="stat-box"><div class="num" style="color:var(--accent)">${data.nickname}</div><div class="lbl">昵称</div></div>
+      <div class="stat-box"><div class="num" style="color:var(--gold)"><span class="badge badge-${data.level}">${data.level}</span></div><div class="lbl">级别</div></div>
+      <div class="stat-box"><div class="num" style="color:var(--green)">${data.matches_this_month}</div><div class="lbl">本月参赛次数</div></div>
+      <button class="btn btn-primary btn-sm" onclick="showHistory(${data.id})" style="margin-top:8px">查看战绩</button>
+    </div>`;
+}
+
+async function showHistory(id) {
+  const res = await fetch(API + '/members/' + id + '/history');
+  const h = await res.json();
+  if (!h || h.error) { alert('未找到成员'); return; }
+  const total = h.wins + h.losses;
+  const rate = total > 0 ? (h.wins / total * 100).toFixed(1) + '%' : '-';
+  const pts = h.wins * 3 + h.losses * 1;
+  $('history-detail').innerHTML = `
+    <h2 style="margin-bottom:16px;color:var(--accent)">${h.member.nickname} <span class="badge badge-${h.member.level}">${h.member.level}</span></h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+      <div class="stat-box"><div class="num" style="color:var(--gold)">${pts}</div><div class="lbl">总积分</div></div>
+      <div class="stat-box"><div class="num" style="color:var(--green)">${h.wins}</div><div class="lbl">胜场</div></div>
+      <div class="stat-box"><div class="num" style="color:var(--red)">${h.losses}</div><div class="lbl">负场</div></div>
+      <div class="stat-box"><div class="num">${rate}</div><div class="lbl">胜率</div></div>
+    </div>
+    <h3 style="margin-bottom:10px;color:var(--text2);font-size:14px">对阵过的对手</h3>
+    ${h.opponents && h.opponents.length ? '<table><thead><tr><th>对手</th><th>交手次数</th></tr></thead><tbody>' +
+      h.opponents.map(o => '<tr><td><span class="member-link" onclick="showHistory(' + o.id + ')">' + o.nickname + '</span></td><td>' + o.played + '</td></tr>').join('') +
+      '</tbody></table>' : '<div class="empty">暂无对手记录</div>'}`;
+  $('history-modal').style.display = 'flex';
+}
+
+function closeHistory() { $('history-modal').style.display = 'none'; }
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHistory(); });
+
+initDate();
+loadMembers();
+loadMatches();
+</script>
+</body>
+</html>
